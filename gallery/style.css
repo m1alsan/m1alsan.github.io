@@ -1,41 +1,19 @@
 body {
     margin:0;
     background:#0a0a0a;
-    color:#eee;
-    font-family: Helvetica, Arial, sans-serif;
-}
-
-header {
-    text-align:center;
-    padding:60px 20px 40px;
-    letter-spacing:4px;
-}
-
-header h1 {
-    font-weight:300;
-    font-size:28px;
-    margin:0;
-}
-
-header p {
-    font-size:11px;
-    color:#666;
-    margin-top:10px;
 }
 
 #gallery {
     display:grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap:20px;
-    max-width:1400px;
+    gap:10px;
+    padding:10px;
+    max-width:1600px;
     margin:0 auto;
-    padding:20px;
 }
 
 .card {
-    position:relative;
     overflow:hidden;
-    background:#111;
 }
 
 .card img {
@@ -46,50 +24,5 @@ header p {
 }
 
 .card:hover img {
-    transform:scale(1.08);
-}
-
-.overlay {
-    position:absolute;
-    bottom:0;
-    left:0;
-    right:0;
-    background:linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    padding:20px;
-    opacity:0;
-    transition:0.4s;
-}
-
-.card:hover .overlay {
-    opacity:1;
-}
-
-.overlay a {
-    color:#fff;
-    text-decoration:none;
-    font-size:13px;
-    letter-spacing:1px;
-}
-
-footer {
-    text-align:center;
-    padding:40px;
-    font-size:12px;
-    color:#666;
-}
-
-/* Mobil için ekstra optimizasyon */
-@media (max-width:600px) {
-    header {
-        padding:40px 10px 20px;
-    }
-
-    header h1 {
-        font-size:20px;
-    }
-
-    #gallery {
-        grid-template-columns:1fr;
-        padding:10px;
-    }
+    transform:scale(1.05);
 }
