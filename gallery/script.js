@@ -14,12 +14,7 @@ fetch("images.json")
           card.className = "card";
 
           card.innerHTML = `
-            <img src="${img}" loading="lazy">
-            <div class="overlay">
-              <a href="https://hive.blog/@${post.author}/${post.permlink}" target="_blank">
-                ${post.title}
-              </a>
-            </div>
+            <img src="${img.url}" loading="lazy">
           `;
 
           container.appendChild(card);
