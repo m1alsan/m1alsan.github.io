@@ -7,17 +7,27 @@ USERNAME = "m1alsan"
 API = "https://api.hive.blog"
 
 def hive_call(method, params):
-    return requests.post(API, json={
-        "jsonrpc":"2.0",
-        "method":method,
-        "params":params,
-        "id":1
-    }).json()["result"]
+    response = requests.post(API, json={
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": params,
+        "id": 1
+    }).json()
+
+    if "result" not in response:
+        print("Hive API error:", response)
+        return []
+
+    return response["result"]
 
 def get_posts():
     return hive_call(
-        "condenser_api.get_discussions_by_blog",
-        [{"tag":USERNAME,"limit":100}]
+        "bridge.get_account_posts",
+        {
+            "account": USERNAME,
+            "sort": "blog",
+            "limit": 100
+        }
     )
 
 def load_json(path, default):
@@ -41,51 +51,48 @@ def extract_images(body):
 
 def main():
     images_data = load_json("gallery/images.json", [])
-    log = load_json("gallery/log.json", [])
     last_checked = load_json("gallery/last_checked.json", {"last_run": None})
 
     last_run = last_checked["last_run"]
-
     posts = get_posts()
     now = datetime.utcnow().isoformat()
 
     processed = False
 
     for post in posts:
-        if last_run:
-            if post["last_update"] <= last_run:
-                continue
+        last_update = post.get("updated") or post.get("created")
 
-        imgs = extract_images(post["body"])
+        if last_run and last_update <= last_run:
+            continue
+
+        imgs = extract_images(post.get("body",""))
         if imgs:
             images_data = [p for p in images_data if p["permlink"] != post["permlink"]]
             images_data.append({
-                "author":post["author"],
-                "permlink":post["permlink"],
-                "title":post["title"],
-                "created":post["created"],
-                "last_update":post["last_update"],
-                "images":imgs
+                "author": post["author"],
+                "permlink": post["permlink"],
+                "title": post["title"],
+                "created": post["created"],
+                "last_update": last_update,
+                "images": imgs
             })
             processed = True
 
-    if not processed:
-        if posts:
-            oldest = min(posts, key=lambda x:x["created"])
-            imgs = extract_images(oldest["body"])
-            if imgs:
-                images_data.append({
-                    "author":oldest["author"],
-                    "permlink":oldest["permlink"],
-                    "title":oldest["title"],
-                    "created":oldest["created"],
-                    "last_update":oldest["last_update"],
-                    "images":imgs
-                })
+    if not processed and posts:
+        oldest = posts[-1]
+        imgs = extract_images(oldest.get("body",""))
+        if imgs:
+            images_data.append({
+                "author": oldest["author"],
+                "permlink": oldest["permlink"],
+                "title": oldest["title"],
+                "created": oldest["created"],
+                "last_update": oldest.get("updated") or oldest["created"],
+                "images": imgs
+            })
 
     save_json("gallery/images.json", images_data)
     save_json("gallery/last_checked.json", {"last_run": now})
 
 if __name__ == "__main__":
     main()
-
