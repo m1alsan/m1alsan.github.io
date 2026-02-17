@@ -1,1 +1,33 @@
+name: Hive Gallery Update
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+
+    - run: pip install requests
+
+    - run: python gallery/fetch_images.py
+
+    - name: Commit changes
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add gallery/images.json gallery/last_checked.json
+        git commit -m "Auto update gallery" || echo "No changes"
+        git push
 
