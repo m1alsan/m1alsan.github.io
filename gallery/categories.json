@@ -1,1 +1,21 @@
-[]
+{
+  "git1": {
+    "name": "Makro",
+    "description": "Close-up and macro photography works",
+    "order": 1,
+    "active": true
+  },
+  "git2": {
+    "name": "Street",
+    "description": "Urban and street photography",
+    "order": 2,
+    "active": false
+  },
+  "git3": {
+    "name": "Abstract",
+    "description": "Abstract compositions",
+    "order": 3,
+    "active": false
+  }
+}
+
