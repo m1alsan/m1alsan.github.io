@@ -29,18 +29,22 @@ body {
 
 /* Buton */
 .back-button {
-    display:inline-block;
-    margin-top:20px;
-    padding:14px 32px;
-    border:1px solid #333;
-    text-decoration:none;
-    color:#fff;
-    font-size:13px;
-    letter-spacing:2px;
-    transition:0.4s;
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    padding: 12px 26px;
+    border: 1px solid #333;
+    text-decoration: none;
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 2px;
+    transition: 0.4s;
+    z-index: 1000;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
 }
 
 .back-button:hover {
-    background:#fff;
-    color:#000;
+    background: #fff;
+    color: #000;
 }
