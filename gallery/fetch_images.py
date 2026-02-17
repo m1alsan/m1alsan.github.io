@@ -1,7 +1,7 @@
 import requests
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 USERNAME = "m1alsan"
 API = "https://api.hive.blog"
@@ -20,13 +20,15 @@ def hive_call(method, params):
 
     return response["result"]
 
-def get_posts():
+def get_posts(start_author=None, start_permlink=None):
     return hive_call(
         "bridge.get_account_posts",
         {
             "account": USERNAME,
             "sort": "blog",
-            "limit": 100
+            "limit": 20,
+            "start_author": start_author,
+            "start_permlink": start_permlink
         }
     )
 
@@ -54,9 +56,9 @@ def main():
     last_checked = load_json("gallery/last_checked.json", {"last_run": None})
 
     last_run = last_checked["last_run"]
-    posts = get_posts()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
+    posts = get_posts()
     processed = False
 
     for post in posts:
@@ -78,6 +80,7 @@ def main():
             })
             processed = True
 
+    # Eğer yeni/edited post yoksa eskiye doğru 1 tane ilerle
     if not processed and posts:
         oldest = posts[-1]
         imgs = extract_images(oldest.get("body",""))
