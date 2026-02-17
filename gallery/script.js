@@ -1,23 +1,30 @@
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
+
     const container = document.getElementById("gallery");
 
     data
       .sort((a,b) => new Date(b.last_update) - new Date(a.last_update))
       .forEach(post => {
-        post.images.forEach(img => {
-          const div = document.createElement("div");
-          div.className = "card";
 
-          div.innerHTML = `
+        post.images.forEach(img => {
+
+          const card = document.createElement("div");
+          card.className = "card";
+
+          card.innerHTML = `
             <img src="${img}" loading="lazy">
-            <a href="https://hive.blog/@${post.author}/${post.permlink}" target="_blank">
-              ${post.title}
-            </a>
+            <div class="overlay">
+              <a href="https://hive.blog/@${post.author}/${post.permlink}" target="_blank">
+                ${post.title}
+              </a>
+            </div>
           `;
 
-          container.appendChild(div);
+          container.appendChild(card);
         });
+
       });
+
   });
