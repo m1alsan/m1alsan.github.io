@@ -1,10 +1,12 @@
 import requests
 import json
 import os
+import re
 from datetime import datetime, timezone
 
 USERNAME = "m1alsan"
 API = "https://api.hive.blog"
+
 
 def hive_call(method, params):
     response = requests.post(API, json={
@@ -20,17 +22,17 @@ def hive_call(method, params):
 
     return response["result"]
 
-def get_posts(start_author=None, start_permlink=None):
+
+def get_posts():
     return hive_call(
         "bridge.get_account_posts",
         {
             "account": USERNAME,
             "sort": "blog",
-            "limit": 20,
-            "start_author": start_author,
-            "start_permlink": start_permlink
+            "limit": 20
         }
     )
+
 
 def load_json(path, default):
     if os.path.exists(path):
@@ -38,18 +40,26 @@ def load_json(path, default):
             return json.load(f)
     return default
 
+
 def save_json(path, data):
-    with open(path,"w") as f:
-        json.dump(data,f,indent=2)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+
 
 def extract_images(body):
     images = []
-    for part in body.split("![]("):
-        if ")" in part:
-            url = part.split(")")[0]
-            if url.startswith("http"):
-                images.append(url)
-    return images
+
+    # Markdown images ![alt](url)
+    md_matches = re.findall(r'!\[.*?\]\((https?://.*?)\)', body)
+    images.extend(md_matches)
+
+    # HTML img tags
+    html_matches = re.findall(r'<img[^>]+src="(https?://[^"]+)"', body)
+    images.extend(html_matches)
+
+    # Remove duplicates
+    return list(set(images))
+
 
 def main():
     images_data = load_json("gallery/images.json", [])
@@ -67,9 +77,11 @@ def main():
         if last_run and last_update <= last_run:
             continue
 
-        imgs = extract_images(post.get("body",""))
+        imgs = extract_images(post.get("body", ""))
+
         if imgs:
             images_data = [p for p in images_data if p["permlink"] != post["permlink"]]
+
             images_data.append({
                 "author": post["author"],
                 "permlink": post["permlink"],
@@ -78,12 +90,14 @@ def main():
                 "last_update": last_update,
                 "images": imgs
             })
+
             processed = True
 
-    # Eğer yeni/edited post yoksa eskiye doğru 1 tane ilerle
+    # Eğer yeni/edited post yoksa en eski posttan 1 tane işle
     if not processed and posts:
         oldest = posts[-1]
-        imgs = extract_images(oldest.get("body",""))
+        imgs = extract_images(oldest.get("body", ""))
+
         if imgs:
             images_data.append({
                 "author": oldest["author"],
@@ -96,6 +110,7 @@ def main():
 
     save_json("gallery/images.json", images_data)
     save_json("gallery/last_checked.json", {"last_run": now})
+
 
 if __name__ == "__main__":
     main()
