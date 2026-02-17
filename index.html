@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>M1alsan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M1ALSAN</title>
+
 <style>
 body {
     margin:0;
@@ -10,27 +12,94 @@ body {
     color:#eee;
     font-family: Helvetica, Arial, sans-serif;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
-    height:100vh;
+    min-height:100vh;
+    text-align:center;
+}
+
+/* Orta blok */
+.container {
+    max-width:700px;
+    padding:40px 20px;
+}
+
+h1 {
+    font-weight:300;
+    letter-spacing:6px;
+    font-size:28px;
+    margin:0;
+}
+
+.subtitle {
+    margin-top:20px;
+    font-size:12px;
     letter-spacing:2px;
+    color:#666;
 }
-a {
-    color:#fff;
-    text-decoration:none;
-    font-size:22px;
+
+.divider {
+    width:60px;
+    height:1px;
+    background:#333;
+    margin:40px auto;
+}
+
+/* Buton */
+.enter {
+    display:inline-block;
+    margin-top:20px;
+    padding:14px 32px;
     border:1px solid #333;
-    padding:20px 40px;
-    transition:0.3s;
+    text-decoration:none;
+    color:#fff;
+    font-size:13px;
+    letter-spacing:2px;
+    transition:0.4s;
 }
-a:hover {
+
+.enter:hover {
     background:#fff;
     color:#000;
 }
+
+/* Footer */
+footer {
+    position:absolute;
+    bottom:20px;
+    font-size:11px;
+    color:#555;
+}
+
+/* Mobil */
+@media (max-width:600px) {
+    h1 {
+        font-size:20px;
+        letter-spacing:4px;
+    }
+
+    .subtitle {
+        font-size:11px;
+    }
+}
 </style>
 </head>
+
 <body>
-<a href="/gallery/">ENTER GALLERY</a>
+
+<div class="container">
+    <h1>M1ALSAN</h1>
+    <div class="subtitle">Visual Art • Code • Archive</div>
+
+    <div class="divider"></div>
+
+    <a class="enter" href="/gallery/">ENTER GALLERY</a>
+</div>
+
+<footer>
+    © 2026
+</footer>
+
 </body>
 </html>
-
