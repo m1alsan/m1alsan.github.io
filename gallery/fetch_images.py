@@ -47,22 +47,30 @@ def save_json(path, data):
 
 
 def extract_images(body):
+    """
+    Sadece markdown içinde ![gitX...](url) formatını alır.
+    """
+    pattern = r'!\[(git[0-9][^\]]*)\]\((https?://.*?)\)'
+    matches = re.findall(pattern, body, re.IGNORECASE)
+
     images = []
 
-    # Markdown images ![alt](url)
-    md_matches = re.findall(r'!\[.*?\]\((https?://.*?)\)', body)
-    images.extend(md_matches)
+    for alt_text, url in matches:
+        alt_text = alt_text.lower()
+        category_code_match = re.match(r'(git[0-9]+)', alt_text)
+        category_code = category_code_match.group(1) if category_code_match else "unknown"
 
-    # HTML img tags
-    html_matches = re.findall(r'<img[^>]+src="(https?://[^"]+)"', body)
-    images.extend(html_matches)
+        images.append({
+            "url": url,
+            "category_code": category_code
+        })
 
-    # Remove duplicates
-    return list(set(images))
+    return images
 
 
 def main():
     images_data = load_json("gallery/images.json", [])
+    categories = load_json("gallery/categories.json", {})
     last_checked = load_json("gallery/last_checked.json", {"last_run": None})
 
     last_run = last_checked["last_run"]
@@ -82,30 +90,49 @@ def main():
         if imgs:
             images_data = [p for p in images_data if p["permlink"] != post["permlink"]]
 
+            formatted_images = []
+            for img in imgs:
+                category_obj = categories.get(img["category_code"], {})
+                category_name = category_obj.get("name", None)
+
+                formatted_images.append({
+                    "url": img["url"],
+                    "category_code": img["category_code"],
+                    "category_name": category_name
+                })
+
             images_data.append({
                 "author": post["author"],
                 "permlink": post["permlink"],
-                "title": post["title"],
                 "created": post["created"],
                 "last_update": last_update,
-                "images": imgs
+                "images": formatted_images
             })
 
             processed = True
 
-    # Eğer yeni/edited post yoksa en eski posttan 1 tane işle
     if not processed and posts:
         oldest = posts[-1]
         imgs = extract_images(oldest.get("body", ""))
 
         if imgs:
+            formatted_images = []
+            for img in imgs:
+                category_obj = categories.get(img["category_code"], {})
+                category_name = category_obj.get("name", None)
+
+                formatted_images.append({
+                    "url": img["url"],
+                    "category_code": img["category_code"],
+                    "category_name": category_name
+                })
+
             images_data.append({
                 "author": oldest["author"],
                 "permlink": oldest["permlink"],
-                "title": oldest["title"],
                 "created": oldest["created"],
                 "last_update": oldest.get("updated") or oldest["created"],
-                "images": imgs
+                "images": formatted_images
             })
 
     save_json("gallery/images.json", images_data)
